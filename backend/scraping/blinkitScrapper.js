@@ -10,6 +10,7 @@ const mongoose = require("mongoose");
 const puppeteer = require("puppeteer");
 const connectToDB = require("../server");
 const Product = require("../models/product");
+const { db } = require("../server");
 
 async function getTopSubcategories(page, categoryUrl, numberOfCategories) {
   await page.goto(categoryUrl, {
@@ -93,9 +94,12 @@ async function getProductLinksInCategory(categoryUrl) {
     }
     console.log(allTopProductLinks.length);
 
+    const newProducts = await filterNewLinks(allTopProductLinks);
+    console.log(newProducts.length);
+
     // topNewProducts = await filterNewLinks(allTopProductLinks)
 
-    const firstProduct = allTopProductLinks[0];
+    const firstProduct = newProducts[0];
     const imagesLinks = await getImagesOfProduct(page, firstProduct);
 
     console.log(imagesLinks);
@@ -109,6 +113,21 @@ async function getProductLinksInCategory(categoryUrl) {
 
 getProductLinksInCategory("https://blinkit.com/cn/chips-crisps/cid/1237/940");
 
+async function addproduct() {
+  try {
+    const docRef = await db.collection("Products").add({
+      name: "name",
+      "analysis-labels": "",
+      image: "",
+    });
+    console.log("Document written with ID: ", (await docRef).id);
+  } catch (error) {
+    console.error("Error adding document: ", error);
+  }
+}
+
+// addproduct();
+
 /*
     To be used later
 */
@@ -116,24 +135,20 @@ getProductLinksInCategory("https://blinkit.com/cn/chips-crisps/cid/1237/940");
 async function handleRestrictions() {}
 
 async function filterNewLinks(productLinks) {
-  // TODO : check new products using fssai licence
+  // TODO : check new products using some unique code
   // currently it is just getting checked using links
 
   const newProducts = [];
+  const collectionRef = db.collection("Products");
 
   try {
-    await connectToDB();
-    console.log("DB connected:", mongoose.connection.readyState);
-
     for (var link of productLinks) {
-      const exists = await Product.exists({ link: link });
-      if (!exists) {
-        console.log(link);
+      const querySnapshot = await collectionRef.where("link", "==", link).get();
+
+      if (querySnapshot.empty) {
         newProducts.push(link);
       }
     }
-
-    await mongoose.disconnect();
   } catch (error) {
     console.log(error);
   }
