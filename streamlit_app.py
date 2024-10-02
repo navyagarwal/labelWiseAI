@@ -1,5 +1,5 @@
 import streamlit as st
-from utility.helper_functions import ocr_foodlabel, images_to_pdf
+from utility.helper_functions import health_analysis, images_to_pdf
 from PIL import Image
 
 st.title("LabelWiseAI is here to help you eat right!")
@@ -12,8 +12,8 @@ process_label_button = st.button("Process Label", disabled=(not uploaded_files))
 if process_label_button and uploaded_files:
     images = [Image.open(image) for image in uploaded_files]
     pdf_file = images_to_pdf(images)
-    text = ocr_foodlabel(pdf_file)
-    st.write(text)
+    product_health_analysis = health_analysis(pdf_file)
+    st.write(product_health_analysis)
 
 if uploaded_files is None:
     st.warning("Please upload a file to enable the 'Process Label' button.")
