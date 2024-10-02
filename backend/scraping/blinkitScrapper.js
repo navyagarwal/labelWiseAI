@@ -6,11 +6,8 @@
 */
 
 require("dotenv").config({ path: "../.env" });
-const mongoose = require("mongoose");
 const puppeteer = require("puppeteer");
-const connectToDB = require("../server");
-const Product = require("../models/product");
-const { db } = require("../server");
+const { db } = require("../firestore");
 
 async function getTopSubcategories(page, categoryUrl, numberOfCategories) {
   await page.goto(categoryUrl, {
@@ -111,7 +108,7 @@ async function getProductLinksInCategory(categoryUrl) {
   }
 }
 
-getProductLinksInCategory("https://blinkit.com/cn/chips-crisps/cid/1237/940");
+// getProductLinksInCategory("https://blinkit.com/cn/chips-crisps/cid/1237/940");
 
 async function addproduct() {
   try {
@@ -126,7 +123,7 @@ async function addproduct() {
   }
 }
 
-// addproduct();
+addproduct();
 
 /*
     To be used later
